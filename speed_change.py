@@ -3,7 +3,7 @@ import os
 import re
 import sys
 
-from arcfutil import aff
+from arcfutil0 import aff
 
 # supported file types
 audiosuffix = ['.mp3', '.ogg']
@@ -24,6 +24,27 @@ def change_audio_rate(rate: float, audio_file):
             os.system(cmd)
 
 
+def change_note_rate(rate: float, note):
+    if(isinstance(note, aff.AudioOffset)):
+        note.offset = int(note.offset/rate)
+    elif(isinstance(note, aff.Timing)):
+        note.time = int(note.time/rate)
+        note.bpm = note.bpm*rate
+    elif(isinstance(note, aff.Tap)):
+        note.time = int(note.time/rate)
+        if(isinstance(note, aff.Hold)):
+            note.totime = int(note.totime/rate)
+    elif(isinstance(note, aff.Arc)):
+        note.time = int(note.time/rate)
+        note.totime = int(note.totime/rate)
+        for k, n in enumerate(note.skynote):
+            note.skynote[k] = int(int(n)/rate)
+    if(note != None):
+        print('Type \'{}\' is not supported for the moment'.format(type(note)))
+        return None
+    return note
+
+
 def change_beatmap_rate(rate: float, beatmap_file):
     for i, beatmap1 in enumerate(beatmap_file):
         is_beatmap = False
@@ -33,25 +54,13 @@ def change_beatmap_rate(rate: float, beatmap_file):
         if(is_beatmap):
             notelist = aff.loads(beatmap1)
             for j, note in enumerate(notelist):
-                if(isinstance(note, aff.AudioOffset)):
-                    note.offset = int(note.offset/rate)
-                elif(isinstance(note, aff.Timing)):
-                    note.time = int(note.time/rate)
-                    note.bpm = note.bpm*rate
-                elif(isinstance(note, aff.Tap)):
-                    note.time = int(note.time/rate)
-                    if(isinstance(note, aff.Hold)):
-                        note.totime = int(note.totime/rate)
-                elif(isinstance(note, aff.Arc)):
-                    note.time = int(note.time/rate)
-                    note.totime = int(note.totime/rate)
-                    for k, n in enumerate(note.skynote):
-                        note.skynote[k] = int(int(n)/rate)
+                if(isinstance(note, aff.TimingGroup())):
+                    for k,n in note:
+                        note[k] = change_note_rate(rate, n)
                 else:
-                    if(note != None):
-                        print(
-                            'Type \'{}\' is not supported for the moment'.format(type(note)))
-                notelist[j] = note
+                    note = change_note_rate(rate, note)
+                if(note != None):
+                    notelist[j] = note
             os.chdir(".\\speed_change")
             aff.dumps(notelist, os.getcwd()+'\\'+beatmap1)
             os.chdir("..\\")
