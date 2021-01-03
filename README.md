@@ -15,8 +15,11 @@ pip install -U arcfutil
 
 ## 使用
 
-使用python3执行```speed_change.py```文件
+使用python3执行```speed_change.py```文件，并按照提示输入
+
+注意输入路径应为**谱面所在文件夹**
 
 ## 注意事项
 
-- 暂时不支持timinggroup语法
+- 现已支持timinggroup等常见语法
+
