@@ -3,7 +3,7 @@ import os
 import re
 import sys
 
-from arcfutil0 import aff
+from arcfutil import aff
 
 # supported file types
 audiosuffix = ['.mp3', '.ogg']
@@ -39,7 +39,7 @@ def change_note_rate(rate: float, note):
         note.totime = int(note.totime/rate)
         for k, n in enumerate(note.skynote):
             note.skynote[k] = int(int(n)/rate)
-    if(note != None):
+    elif(note != None):
         print('Type \'{}\' is not supported for the moment'.format(type(note)))
         return None
     return note
@@ -54,8 +54,8 @@ def change_beatmap_rate(rate: float, beatmap_file):
         if(is_beatmap):
             notelist = aff.loads(beatmap1)
             for j, note in enumerate(notelist):
-                if(isinstance(note, aff.TimingGroup())):
-                    for k,n in note:
+                if(isinstance(note, aff.TimingGroup)):
+                    for k, n in enumerate(note):
                         note[k] = change_note_rate(rate, n)
                 else:
                     note = change_note_rate(rate, note)
